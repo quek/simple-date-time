@@ -52,6 +52,7 @@
            #:yyyy-mm-dd
            #:yy/mm/dd
            #:yy-mm-dd
+           #:|hh:mm|
            ))
 
 

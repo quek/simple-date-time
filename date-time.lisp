@@ -319,3 +319,6 @@
 (defun yy-mm-dd (date-time)
   (format nil "~02,'0d-~02,'0d-~02,'0d" (mod (year-of date-time) 100)
           (month-of date-time) (day-of date-time)))
+
+(defun |hh:mm| (date-time)
+  (format nil "~02,'0d:~02,'0d" (hour-of date-time) (minute-of date-time)))
