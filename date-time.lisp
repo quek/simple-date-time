@@ -267,6 +267,15 @@
                          (month-of date-time)
                          (year-of date-time)))
 
+
+
+
+(defconstant +posix-epoch+ (encode-universal-time 0 0 0 1 1 1970 0))
+
+(defun from-posix-time (time)
+  (from-universal-time (+ time +posix-epoch+)))
+
+
 (defun now ()
   (from-universal-time
    (get-universal-time)
@@ -322,3 +331,8 @@
 
 (defun |hh:mm| (date-time)
   (format nil "~02,'0d:~02,'0d" (hour-of date-time) (minute-of date-time)))
+
+(defun |yyyy-mm-dd hh:mm| (date-time)
+  (format nil "~04,'0d/~02,'0d/~02,'0d ~02,'0d:~02,'0d"
+          (year-of date-time) (month-of date-time) (day-of date-time)
+          (hour-of date-time) (minute-of date-time)))

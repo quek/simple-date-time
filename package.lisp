@@ -43,6 +43,7 @@
            #:make-time
            #:from-universal-time
            #:to-universal-time
+           #:from-posix-time
            #:now
            #:today
            #:tomorrow
@@ -53,6 +54,7 @@
            #:yy/mm/dd
            #:yy-mm-dd
            #:|hh:mm|
+           #:|yyyy-mm-dd hh:mm|
            ))
 
 
