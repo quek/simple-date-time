@@ -12,7 +12,7 @@
            #:normalize
            #:serialize
            #:deserialize
-           #:weak-of
+           #:week-of
            #:year+
            #:month+
            #:day+
@@ -56,5 +56,4 @@
            #:|hh:mm|
            #:|yyyy-mm-dd hh:mm|
            ))
-
 

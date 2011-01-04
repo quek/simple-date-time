@@ -8,22 +8,22 @@
 
 (in-suite simple-date-time-test)
 
-(deftest test-weak-of ()
-  (is (= 2 (weak-of (make-instance 'date-time :year 2009 :month 3 :day 17))))
-  (is (= 4 (weak-of (make-instance 'date-time :year 1973 :month 4 :day 26))))
-  (is (= 5 (weak-of (make-instance 'date-time :year 9999 :month 12 :day 31)))))
+(deftest test-week-of ()
+  (is (= 2 (week-of (make-instance 'date-time :year 2009 :month 3 :day 17))))
+  (is (= 4 (week-of (make-instance 'date-time :year 1973 :month 4 :day 26))))
+  (is (= 5 (week-of (make-instance 'date-time :year 9999 :month 12 :day 31)))))
 
 (deftest test-+ ()
-  (is (date-time-equal
+  (is (date-time=
        (make-instance 'date-time :year 1973 :month 4 :day 26)
        (year+ (make-instance 'date-time :year 1972 :month 4 :day 26) 1)))
-  (is (date-time-equal
+  (is (date-time=
        (make-instance 'date-time :year 1973 :month 4 :day 26)
        (year+ (make-instance 'date-time :year 1974 :month 4 :day 26) -1)))
-  (is (date-time-equal
+  (is (date-time=
        (make-instance 'date-time :year 2005 :month 2 :day 28)
        (year+ (make-instance 'date-time :year 2004 :month 2 :day 29) 1)))
-  (is (date-time-equal
+  (is (date-time=
        (make-instance 'date-time :year 2009 :month 2 :day 28)
        (month+ (make-instance 'date-time :year 2009 :month 3 :day 31) -1))))
 

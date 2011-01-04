@@ -146,7 +146,7 @@
                             :second 0
                             :millisecond millisecond)))
 
-(defun weak-of (date-time)
+(defun week-of (date-time)
   (mod (1+ (serialize-date date-time)) 7))
 
 (macrolet ((m (x)
