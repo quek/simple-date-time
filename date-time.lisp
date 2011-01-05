@@ -146,8 +146,19 @@
                             :second 0
                             :millisecond millisecond)))
 
-(defun week-of (date-time)
+(defun day-of-week-of (date-time)
   (mod (1+ (serialize-date date-time)) 7))
+
+(setf (fdefinition 'week-of) #'day-of-week-of)
+
+(defun day-name-of (date)
+  (nth (day-of-week-of date)
+       (list "Sun" "Mon" "Tue" "Wed" "Thu" "Fri" "Sat")))
+
+(defun month-name-of (date)
+  (nth (1- (month-of date))
+       (list "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul"
+	     "Aug" "Sep" "Oct" "Nov" "Dec")))
 
 (macrolet ((m (x)
              `(defun ,(intern (concatenate 'string (string x) "+"))
@@ -297,6 +308,7 @@
 
 
 (defun from-string-with-format (string format)
+  (declare (ignore string format))
   ;; TODO
   )
 
@@ -336,3 +348,24 @@
   (format nil "~04,'0d/~02,'0d/~02,'0d ~02,'0d:~02,'0d"
           (year-of date-time) (month-of date-time) (day-of date-time)
           (hour-of date-time) (minute-of date-time)))
+
+
+;; For the timezone, as decode-universal-time does not seem to handle
+;; minutes, the precision is (integral) hours, but the RFC says minutes
+;; should be OK too...
+(defun rfc-2822 (date-time &optional (timezone 0))
+  (let* ((tz (car (last (multiple-value-list
+			 (decode-universal-time
+			  (to-universal-time date-time))))))
+	 (date-tz (hour+ (hour+ date-time tz) timezone)))
+    (format nil "~a, ~02,'0d ~a ~04,'0d ~02,'0d:~02,'0d:~02,'0d ~a~02,'0d00"
+	    (day-name-of date-tz)
+	    (day-of date-tz)
+	    (month-name-of date-tz)
+	    (year-of date-tz)
+	    (hour-of date-tz)
+	    (minute-of date-tz)
+	    (second-of date-tz)
+	    (if (>= timezone 0) "+" "-")
+	    (if (>= timezone 0) timezone (- timezone)))))
+

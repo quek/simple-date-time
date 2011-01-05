@@ -1,5 +1,5 @@
 (defpackage :simple-date-time
-    (:use :cl)
+  (:use :cl)
   (:nicknames :date-time :dt)
   (:export #:date-time
            #:year-of
@@ -13,6 +13,9 @@
            #:serialize
            #:deserialize
            #:week-of
+           #:day-of-week-of
+	   #:day-name-of
+	   #:month-name-of
            #:year+
            #:month+
            #:day+
@@ -55,5 +58,6 @@
            #:yy-mm-dd
            #:|hh:mm|
            #:|yyyy-mm-dd hh:mm|
+	   #:rfc-2822
            ))
 
