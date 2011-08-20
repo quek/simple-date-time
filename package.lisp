@@ -56,8 +56,10 @@
            #:yyyy-mm-dd
            #:yy/mm/dd
            #:yy-mm-dd
+           #:yy.mm.dd
            #:|hh:mm|
            #:|yyyy-mm-dd hh:mm|
+           #:|yyyy-mm-dd hh:mm:ss|
 	   #:rfc-2822
            ))
 

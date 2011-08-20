@@ -341,6 +341,10 @@
   (format nil "~02,'0d-~02,'0d-~02,'0d" (mod (year-of date-time) 100)
           (month-of date-time) (day-of date-time)))
 
+(defun yy.mm.dd (date-time)
+  (format nil "~02,'0d.~02,'0d.~02,'0d" (mod (year-of date-time) 100)
+          (month-of date-time) (day-of date-time)))
+
 (defun |hh:mm| (date-time)
   (format nil "~02,'0d:~02,'0d" (hour-of date-time) (minute-of date-time)))
 
@@ -348,6 +352,11 @@
   (format nil "~04,'0d/~02,'0d/~02,'0d ~02,'0d:~02,'0d"
           (year-of date-time) (month-of date-time) (day-of date-time)
           (hour-of date-time) (minute-of date-time)))
+
+(defun |yyyy-mm-dd hh:mm:ss| (date-time)
+  (format nil "~04,'0d/~02,'0d/~02,'0d ~02,'0d:~02,'0d:~02,'0d"
+          (year-of date-time) (month-of date-time) (day-of date-time)
+          (hour-of date-time) (minute-of date-time) (second-of date-time)))
 
 
 ;; For the timezone, as decode-universal-time does not seem to handle
