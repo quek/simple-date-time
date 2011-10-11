@@ -40,4 +40,14 @@
         (is (= se (second-of now)))
         (is (= universal-time (to-universal-time now)))))))
 
+(deftest test-month+ ()
+  (is (date= (make-date 2011 11 1) (month+ (make-date 2011 10 1) 1)))
+  (is (date= (make-date 2011 12 1) (month+ (make-date 2011 11 1) 1)))
+  (is (date= (make-date 2012  1 1) (month+ (make-date 2011 12 1) 1)))
+  (is (date= (make-date 2012  2 1) (month+ (make-date 2012  1 1) 1)))
+  (is (date= (make-date 2011 10 1) (month+ (make-date 2011 11 1) -1)))
+  (is (date= (make-date 2011 11 1) (month+ (make-date 2011 12 1) -1)))
+  (is (date= (make-date 2011 12 1) (month+ (make-date 2012  1 1) -1)))
+  (is (date= (make-date 2012  1 1) (month+ (make-date 2012  2 1) -1))))
+
 (simple-date-time-test)

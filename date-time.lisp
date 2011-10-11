@@ -185,8 +185,13 @@
 (defun month+ (date-time delta)
   (multiple-value-bind (quotient remainder)
       (floor (+ (month-of date-time) delta) 12)
-    (setf (month-of date-time) remainder)
-    (incf (year-of date-time) quotient))
+    (if (zerop remainder)
+        (progn
+          (setf (month-of date-time) 12)
+          (incf (year-of date-time) (1- quotient)))
+        (progn
+          (setf (month-of date-time) remainder)
+          (incf (year-of date-time) quotient))))
   (ensure-last-day-of-month date-time))
 
 (defun date= (dt1 dt2)
