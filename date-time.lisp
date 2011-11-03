@@ -92,6 +92,8 @@
      (millisecond-of date-time)))
 
 (defun serialize (date-time)
+  "Calculates integer milliseconds from DATE-TIME object beginning of
+time (Jan 1 1 0:0:0)"
   (let ((days (serialize-date date-time)))
     (+ (* days #.(* 24 60 60 1000))
        (serialize-time date-time))))
@@ -112,6 +114,8 @@
 
 
 (defun normalize-date (date-time)
+  "Returns a DATE-TIME object with date slots adjusted so they are all
+within normal bounds. "
   (with-accessors ((day day-of) (month month-of) (year year-of)) date-time
     (loop
       if (< month 1)
@@ -134,9 +138,13 @@
 
 
 (defun normalize (date-time)
+  "Returns a DATE-TIME object with date slots adjusted to be within
+normal bounds. "
   (normalize-date (normalize-time date-time)))
 
 (defun deserialize (millisecond)
+  "Returns a normalized DATE-TIME object from input in milliseconds
+from beginning of date-time (1 1 1 0:0:0). "
   (normalize (make-instance 'date-time
                             :year 1
                             :month 1
@@ -163,6 +171,8 @@
 (macrolet ((m (x)
              `(defun ,(intern (concatenate 'string (string x) "+"))
                   (date-time delta)
+                "Function adds X to DATE-TIME object slot without
+normalizing. "
                 (incf (,(intern (concatenate 'string (string x) "-OF"))
                         date-time) delta)
                 (normalize date-time))))
@@ -179,10 +189,14 @@
   date-time)
 
 (defun year+ (date-time delta)
+  "Increments YEAR-OF DATE-TIME object by DELTA. Does not normalize
+the result. "
   (incf (year-of date-time) delta)
   (ensure-last-day-of-month date-time))
 
 (defun month+ (date-time delta)
+  "Increments MONTH-OF DATE-TIME object by DELTA. Does not normalize
+the result. "
   (multiple-value-bind (quotient remainder)
       (floor (+ (month-of date-time) delta) 12)
     (if (zerop remainder)
@@ -195,11 +209,13 @@
   (ensure-last-day-of-month date-time))
 
 (defun date= (dt1 dt2)
+  "Compare two DATE-TIME objects for date1 = date2"
   (and (= (year-of dt1) (year-of dt2))
        (= (month-of dt1) (month-of dt2))
        (= (day-of dt1) (day-of dt2))))
 
 (defun date< (dt1 dt2)
+  "Compare two DATE-TIME objects for date1 < date2"
   (or (< (year-of dt1) (year-of dt2))
       (and (= (year-of dt1) (year-of dt2))
            (or (< (month-of dt1) (month-of dt2))
@@ -207,12 +223,14 @@
                     (< (day-of dt1) (day-of dt2)))))))
 
 (defun time= (dt1 dt2)
+  "Compare two DATE-TIME objects for time1 = time2"
   (and (= (hour-of dt1) (hour-of dt2))
        (= (minute-of dt1) (minute-of dt2))
        (= (second-of dt1) (second-of dt2))
        (= (millisecond-of dt1) (millisecond-of dt2))))
 
 (defun time< (dt1 dt2)
+  "Compare two DATE-TIME objects for time1 < time2"
   (or (< (hour-of dt1) (hour-of dt2))
       (and (= (hour-of dt1) (hour-of dt2))
            (or (< (minute-of dt1) (minute-of dt2))
@@ -223,10 +241,13 @@
                                 (millisecond-of dt2)))))))))
 
 (defun date-time= (dt1 dt2)
+  "Compare two DATE-TIME objects for both date1 = date2 and time1 =
+time2."
   (and (date= dt1 dt2)
        (time= dt1 dt2)))
 
 (defun date-time< (dt1 dt2)
+  "Compare two DATE-TIME objects for date1 < date2"
   (or (date< dt1 dt2)
       (and (date= dt1 dt2)
            (time< dt1 dt2))))
@@ -254,6 +275,8 @@
 (defun make-date-time (year month day
                        &optional (hour 0) (minute 0) (second 0)
                        (millisecond 0))
+  "Constructs a DATE-TIME object from given date and optional time
+arguments."
   (make-instance 'date-time
                  :year year
                  :month month
@@ -264,18 +287,23 @@
                  :millisecond millisecond))
 
 (defun make-date (year month day)
+  "Constructs a DATE-TIME object from given date arguments."
   (make-date-time year month day))
 
 (defun make-time (hour minute second &optional (millisecond 0))
+  "Constructs a DATE-TIME object from given time arguments."
   (make-date-time 1 1 1 hour minute second millisecond))
 
 (defun from-universal-time (&optional (universal-time (get-universal-time))
                             (millisecond 0))
+  "Returns a DATE-TIME object set from UNIVERSAL-TIME (default is now)"
   (multiple-value-bind (se mi ho da mo ye)
       (decode-universal-time universal-time)
     (make-date-time ye mo da ho mi se millisecond)))
 
 (defun to-universal-time (date-time)
+  "Returns the universal time for DATE-TIME object (truncating
+milliseconds). "
   (encode-universal-time (second-of date-time)
                          (minute-of date-time)
                          (hour-of date-time)
@@ -289,10 +317,12 @@
 (defconstant +posix-epoch+ (encode-universal-time 0 0 0 1 1 1970 0))
 
 (defun from-posix-time (time)
+  "Returns a DATE-TIME object from posix TIME"
   (from-universal-time (+ time +posix-epoch+)))
 
 
 (defun now ()
+  "Returns DATE-TIME object set to the current time."
   (from-universal-time
    (get-universal-time)
    #-sbcl 0
@@ -300,15 +330,20 @@
                  1000)))
 
 (defun today ()
+  "Returns a DATE-TIME object set to the start of the current day."
   (multiple-value-bind (se mi ho da mo ye)
       (decode-universal-time (get-universal-time))
     (declare (ignore se mi ho))
     (make-date-time ye mo da)))
 
 (defun tomorrow ()
+  "Returns a DATE-TIME object set to the start of the day following
+the current day."
   (day+ (today) 1))
 
 (defun yesterday ()
+  "Returns a DATE-TIME object set to the start of the day before the
+current day."
   (day+ (today) -1))
 
 
@@ -318,6 +353,7 @@
   )
 
 (defun from-string (string &optional format)
+  ;; "Returns a DATE-TIME object set from parsing STRING. "
   (if format
       (from-string-with-format string format)
       (cond ((cl-ppcre:scan "^\\d{14}$" string)
@@ -331,34 +367,42 @@
              ))))
 
 (defun yyyy/mm/dd (date-time)
+  "Write string for  DATE-TIME object in format: yyyy/mm/dd"
   (format nil "~04,'0d/~02,'0d/~02,'0d" (year-of date-time)
           (month-of date-time) (day-of date-time)))
 
 (defun yyyy-mm-dd (date-time)
+  "Write string for DATE-TIME object in format: yyyy-mm-dd"
   (format nil "~04,'0d-~02,'0d-~02,'0d" (year-of date-time)
           (month-of date-time) (day-of date-time)))
 
 (defun yy/mm/dd (date-time)
+  "Write string for DATE-TIME object in format: yy/mm/dd"
   (format nil "~02,'0d/~02,'0d/~02,'0d" (mod (year-of date-time) 100)
           (month-of date-time) (day-of date-time)))
 
 (defun yy-mm-dd (date-time)
+  "Write string for DATE-TIME object in format: yy-mm-dd"
   (format nil "~02,'0d-~02,'0d-~02,'0d" (mod (year-of date-time) 100)
           (month-of date-time) (day-of date-time)))
 
 (defun yy.mm.dd (date-time)
+  "Write string for DATE-TIME object in format: yy.mm.dd"
   (format nil "~02,'0d.~02,'0d.~02,'0d" (mod (year-of date-time) 100)
           (month-of date-time) (day-of date-time)))
 
 (defun |hh:mm| (date-time)
+  "Write string for DATE-TIME object in format: hh:mm"
   (format nil "~02,'0d:~02,'0d" (hour-of date-time) (minute-of date-time)))
 
 (defun |yyyy-mm-dd hh:mm| (date-time)
+  "Write string for DATE-TIME object in format: yyyy/mm/dd hh:mm"
   (format nil "~04,'0d/~02,'0d/~02,'0d ~02,'0d:~02,'0d"
           (year-of date-time) (month-of date-time) (day-of date-time)
           (hour-of date-time) (minute-of date-time)))
 
 (defun |yyyy-mm-dd hh:mm:ss| (date-time)
+  "Write string for DATE-TIME object in format: yyyy/mm/dd hh:mm:ss"
   (format nil "~04,'0d/~02,'0d/~02,'0d ~02,'0d:~02,'0d:~02,'0d"
           (year-of date-time) (month-of date-time) (day-of date-time)
           (hour-of date-time) (minute-of date-time) (second-of date-time)))
@@ -368,6 +412,8 @@
 ;; minutes, the precision is (integral) hours, but the RFC says minutes
 ;; should be OK too...
 (defun rfc-2822 (date-time &optional (timezone 0))
+  "Write string for DATE-TIME object as per rfc-2822 (including time
+zone)."
   (let* ((tz (car (last (multiple-value-list
 			 (decode-universal-time
 			  (to-universal-time date-time))))))
