@@ -60,6 +60,7 @@
            #:|hh:mm|
            #:|yyyy-mm-dd hh:mm|
            #:|yyyy-mm-dd hh:mm:ss|
+           #:yyyymmdd
            #:|yyyymmddThhmmssZ|
 	   #:rfc-2822
            ))

@@ -420,6 +420,11 @@ current day."
           (year-of date-time) (month-of date-time) (day-of date-time)
           (hour-of date-time) (minute-of date-time) (second-of date-time)))
 
+(defun yyyymmdd (date-time)
+  "Write string for DATE-TIME object in format: yyyymmdd"
+  (format nil "~04,'0d~02,'0d~02,'0d"
+          (year-of date-time) (month-of date-time) (day-of date-time)))
+
 (defun |yyyymmddThhmmssZ| (date-time)
   "Write string for DATE-TIME object in format: YYYYMMDD'T'HHMMSS'Z'"
   ;; TODO tizezone
