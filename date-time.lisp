@@ -432,11 +432,11 @@ current day."
           (year-of date-time) (month-of date-time) (day-of date-time)
           (hour-of date-time) (minute-of date-time) (second-of date-time)))
 
-(defun http-date (date-time)
+(defun http-date (date-time &optional timezone)
   "Write string for HTTP-Date"
-  (let* ((tz (car (last (multiple-value-list
-			 (decode-universal-time
-			  (to-universal-time date-time))))))
+  (let* ((tz (or timezone (car (last (multiple-value-list
+                                      (decode-universal-time
+                                       (to-universal-time date-time)))))))
 	 (date-tz (hour+ date-time tz)))
     (format nil "~a, ~02,'0d ~a ~04,'0d ~02,'0d:~02,'0d:~02,'0d GMT"
 	    (day-name-of date-tz)
