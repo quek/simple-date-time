@@ -62,6 +62,7 @@
            #:|yyyy-mm-dd hh:mm:ss|
            #:yyyymmdd
            #:|yyyymmddThhmmssZ|
+           #:http-date
 	   #:rfc-2822
            ))
 

@@ -52,6 +52,10 @@
 
 (deftest test-from-string ()
   (is (date-time= (make-date-time 2011 9 8 23 36 1)
-                  (from-string "Mon, 08 Sep 2011 23:36:01 GMT"))))
+                  (from-string "Mon, 08 Sep 2011 23:36:01 GMT")))
+  (is (date-time= (make-date-time 2011 9 8 23 36 1)
+                  (from-string "Mon, 08 Sep 2011 23:36:01 +0000"))))
+
+
 
 (simple-date-time-test)

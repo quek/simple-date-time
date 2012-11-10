@@ -372,8 +372,8 @@ current day."
                              (parse-integer string :start 12 :end 14)))
             ((ppcre:register-groups-bind ((#'parse-integer day) (#'from-short-month-name month)
                                           (#'parse-integer year hour minute second))
-                    ("..., (\\d{2}) (.*) (\\d{4}) (\\d{2}):(\\d{2}):(\\d{2}) GMT" string)
-              ;; TODO GMT
+                    ("\\S+, (\\d{2}) (.*) (\\d{4}) (\\d{2}):(\\d{2}):(\\d{2}) (GMT|[+-]\\d{4})" string)
+              ;; TODO TIMEZONE
               ;; Mon, 09 Sep 2011 23:36:00 GMT
               (make-date-time year month day hour minute second)))
             (t ;; TODO
@@ -431,6 +431,21 @@ current day."
   (format nil "~04,'0d~02,'0d~02,'0dT~02,'0d~02,'0d~02,'0dZ"
           (year-of date-time) (month-of date-time) (day-of date-time)
           (hour-of date-time) (minute-of date-time) (second-of date-time)))
+
+(defun http-date (date-time)
+  "Write string for HTTP-Date"
+  (let* ((tz (car (last (multiple-value-list
+			 (decode-universal-time
+			  (to-universal-time date-time))))))
+	 (date-tz (hour+ date-time tz)))
+    (format nil "~a, ~02,'0d ~a ~04,'0d ~02,'0d:~02,'0d:~02,'0d GMT"
+	    (day-name-of date-tz)
+	    (day-of date-tz)
+	    (month-name-of date-tz)
+	    (year-of date-tz)
+	    (hour-of date-tz)
+	    (minute-of date-tz)
+	    (second-of date-tz))))
 
 ;; For the timezone, as decode-universal-time does not seem to handle
 ;; minutes, the precision is (integral) hours, but the RFC says minutes
