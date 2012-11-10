@@ -420,6 +420,12 @@ current day."
           (year-of date-time) (month-of date-time) (day-of date-time)
           (hour-of date-time) (minute-of date-time) (second-of date-time)))
 
+(defun |yyyymmddThhmmssZ| (date-time)
+  "Write string for DATE-TIME object in format: YYYYMMDD'T'HHMMSS'Z'"
+  ;; TODO tizezone
+  (format nil "~04,'0d~02,'0d~02,'0dT~02,'0d~02,'0d~02,'0dZ"
+          (year-of date-time) (month-of date-time) (day-of date-time)
+          (hour-of date-time) (minute-of date-time) (second-of date-time)))
 
 ;; For the timezone, as decode-universal-time does not seem to handle
 ;; minutes, the precision is (integral) hours, but the RFC says minutes
