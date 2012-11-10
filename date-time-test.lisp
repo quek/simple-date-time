@@ -50,4 +50,8 @@
   (is (date= (make-date 2011 12 1) (month+ (make-date 2012  1 1) -1)))
   (is (date= (make-date 2012  1 1) (month+ (make-date 2012  2 1) -1))))
 
+(deftest test-from-string ()
+  (is (date-time= (make-date-time 2011 9 8 23 36 1)
+                  (from-string "Mon, 08 Sep 2011 23:36:01 GMT"))))
+
 (simple-date-time-test)

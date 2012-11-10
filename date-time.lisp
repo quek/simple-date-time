@@ -163,10 +163,17 @@ from beginning of date-time (1 1 1 0:0:0). "
   (nth (day-of-week-of date)
        (list "Sun" "Mon" "Tue" "Wed" "Thu" "Fri" "Sat")))
 
+(defparameter *short-month-names* '("Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul"
+                                    "Aug" "Sep" "Oct" "Nov" "Dec"))
 (defun month-name-of (date)
   (nth (1- (month-of date))
-       (list "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul"
-	     "Aug" "Sep" "Oct" "Nov" "Dec")))
+       *short-month-names*))
+
+(defun from-short-month-name (month-name)
+  (let ((month (position month-name *short-month-names* :test #'string-equal)))
+    (if month
+        (1+ month)
+        nil)))
 
 (macrolet ((m (x)
              `(defun ,(intern (concatenate 'string (string x) "+"))
@@ -353,7 +360,7 @@ current day."
   )
 
 (defun from-string (string &optional format)
-  ;; "Returns a DATE-TIME object set from parsing STRING. "
+  "Returns a DATE-TIME object set from parsing STRING. "
   (if format
       (from-string-with-format string format)
       (cond ((cl-ppcre:scan "^\\d{14}$" string)
@@ -363,8 +370,14 @@ current day."
                              (parse-integer string :start 8 :end 10)
                              (parse-integer string :start 10 :end 12)
                              (parse-integer string :start 12 :end 14)))
+            ((ppcre:register-groups-bind ((#'parse-integer day) (#'from-short-month-name month)
+                                          (#'parse-integer year hour minute second))
+                    ("..., (\\d{2}) (.*) (\\d{4}) (\\d{2}):(\\d{2}):(\\d{2}) GMT" string)
+              ;; TODO GMT
+              ;; Mon, 09 Sep 2011 23:36:00 GMT
+              (make-date-time year month day hour minute second)))
             (t ;; TODO
-             ))))
+              nil))))
 
 (defun yyyy/mm/dd (date-time)
   "Write string for  DATE-TIME object in format: yyyy/mm/dd"
