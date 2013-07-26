@@ -1,5 +1,11 @@
+2013-07-26  Yoshinori Tahara  <read.eval.print@gmail.com>
+
+	* Add *default-timezone* special variable.
+	* Add timezone optional argument to to-universal-time.
+	* Add timezone keyword argument to from-string.
+
 2011-11-03  Jeffrey Cunningham <jeffrey@jkcunningham.com>
-	
+
 	* added doc strings to most exported functions.
 
 2011-10-11  Yoshinori Tahara  <read.eval.print@gmail.com>

@@ -50,11 +50,25 @@
   (is (date= (make-date 2011 12 1) (month+ (make-date 2012  1 1) -1)))
   (is (date= (make-date 2012  1 1) (month+ (make-date 2012  2 1) -1))))
 
+(deftest test-to-universal-time ()
+  (is (= (encode-universal-time 0 0 0 1 1 2000 0)
+         (to-universal-time (make-date-time 2000 1 1 0 0 0) 0)))
+  (is (= (encode-universal-time 0 0 0 1 1 2000 -9)
+         (to-universal-time (make-date-time 2000 1 1 0 0 0) 9)))
+  (let ((*default-timezone* 9))
+    (is (= (encode-universal-time 0 0 0 1 1 2000 -9)
+           (to-universal-time (make-date-time 2000 1 1 0 0 0))))))
+
 (deftest test-from-string ()
   (is (date-time= (make-date-time 2011 9 8 23 36 1)
-                  (from-string "Mon, 08 Sep 2011 23:36:01 GMT")))
+                  (from-string "Mon, 08 Sep 2011 23:36:01 GMT" :timezone 0)))
   (is (date-time= (make-date-time 2011 9 8 23 36 1)
-                  (from-string "Mon, 08 Sep 2011 23:36:01 +0000"))))
+                  (from-string "Mon, 08 Sep 2011 23:36:01 +0000" :timezone 0)))
+  (is (date-time= (make-date-time 2011 9 9 8 36 1)
+                  (from-string "Mon, 08 Sep 2011 23:36:01 GMT" :timezone 9)))
+  (let ((*default-timezone* 9))
+    (is (date-time= (make-date-time 2011 9 9 8 36 1)
+                    (from-string "Mon, 08 Sep 2011 23:36:01 GMT")))))
 
 
 

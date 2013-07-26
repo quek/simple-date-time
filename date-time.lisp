@@ -1,5 +1,9 @@
 (in-package #:simple-date-time)
 
+(defparameter *default-timezone*
+  (- (car (last (multiple-value-list (decode-universal-time (get-universal-time))))))
+  "Default timezone. GMT is 0. JST is 9. EST is -5.")
+
 (defclass date-time ()
   ((year
     :initarg :year
@@ -308,7 +312,7 @@ arguments."
       (decode-universal-time universal-time)
     (make-date-time ye mo da ho mi se millisecond)))
 
-(defun to-universal-time (date-time)
+(defun to-universal-time (date-time &optional (timezone *default-timezone*))
   "Returns the universal time for DATE-TIME object (truncating
 milliseconds). "
   (encode-universal-time (second-of date-time)
@@ -316,7 +320,8 @@ milliseconds). "
                          (hour-of date-time)
                          (day-of date-time)
                          (month-of date-time)
-                         (year-of date-time)))
+                         (year-of date-time)
+                         (- timezone)))
 
 
 
@@ -359,7 +364,7 @@ current day."
   ;; TODO
   )
 
-(defun from-string (string &optional format)
+(defun from-string (string &key format (timezone *default-timezone*))
   "Returns a DATE-TIME object set from parsing STRING. "
   (if format
       (from-string-with-format string format)
@@ -370,14 +375,17 @@ current day."
                              (parse-integer string :start 8 :end 10)
                              (parse-integer string :start 10 :end 12)
                              (parse-integer string :start 12 :end 14)))
-            ((ppcre:register-groups-bind ((#'parse-integer day) (#'from-short-month-name month)
-                                          (#'parse-integer year hour minute second))
-                    ("\\S+, (\\d{2}) (.*) (\\d{4}) (\\d{2}):(\\d{2}):(\\d{2}) (GMT|[+-]\\d{4})" string)
-              ;; TODO TIMEZONE
-              ;; Mon, 09 Sep 2011 23:36:00 GMT
-              (make-date-time year month day hour minute second)))
+            ((ppcre:register-groups-bind
+                 ((#'parse-integer day) (#'from-short-month-name month)
+                  (#'parse-integer year hour minute second)
+                  ((lambda (x) (or (parse-integer x :junk-allowed t) 0)) tz))
+                 ("\\S+, (\\d{2}) (.*) (\\d{4}) (\\d{2}):(\\d{2}):(\\d{2}) (GMT|[+-]\\d{4})" string)
+               ;; Mon, 09 Sep 2011 23:36:00 GMT
+               (hour+ (minute+ (make-date-time year month day hour minute second)
+                               (- (+ (* (truncate tz 100) 60) (mod tz 100))))
+                      timezone)))
             (t ;; TODO
-              nil))))
+             nil))))
 
 (defun yyyy/mm/dd (date-time)
   "Write string for  DATE-TIME object in format: yyyy/mm/dd"
@@ -432,12 +440,9 @@ current day."
           (year-of date-time) (month-of date-time) (day-of date-time)
           (hour-of date-time) (minute-of date-time) (second-of date-time)))
 
-(defun http-date (date-time &optional timezone)
+(defun http-date (date-time &optional (timezone *default-timezone*))
   "Write string for HTTP-Date"
-  (let* ((tz (or timezone (car (last (multiple-value-list
-                                      (decode-universal-time
-                                       (to-universal-time date-time)))))))
-	 (date-tz (hour+ date-time tz)))
+  (let ((date-tz (hour+ date-time (- timezone))))
     (format nil "~a, ~02,'0d ~a ~04,'0d ~02,'0d:~02,'0d:~02,'0d GMT"
 	    (day-name-of date-tz)
 	    (day-of date-tz)
