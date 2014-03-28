@@ -416,15 +416,27 @@ current day."
   "Write string for DATE-TIME object in format: hh:mm"
   (format nil "~02,'0d:~02,'0d" (hour-of date-time) (minute-of date-time)))
 
-(defun |yyyy-mm-dd hh:mm| (date-time)
+(defun |yyyy/mm/dd hh:mm| (date-time)
   "Write string for DATE-TIME object in format: yyyy/mm/dd hh:mm"
   (format nil "~04,'0d/~02,'0d/~02,'0d ~02,'0d:~02,'0d"
           (year-of date-time) (month-of date-time) (day-of date-time)
           (hour-of date-time) (minute-of date-time)))
+          
+(defun |yyyy-mm-dd hh:mm| (date-time)
+  "Write string for DATE-TIME object in format: yyyy-mm-dd hh:mm"
+  (format nil "~04,'0d-~02,'0d-~02,'0d ~02,'0d:~02,'0d"
+          (year-of date-time) (month-of date-time) (day-of date-time)
+          (hour-of date-time) (minute-of date-time)))
 
-(defun |yyyy-mm-dd hh:mm:ss| (date-time)
+(defun |yyyy/mm/dd hh:mm:ss| (date-time)
   "Write string for DATE-TIME object in format: yyyy/mm/dd hh:mm:ss"
   (format nil "~04,'0d/~02,'0d/~02,'0d ~02,'0d:~02,'0d:~02,'0d"
+          (year-of date-time) (month-of date-time) (day-of date-time)
+          (hour-of date-time) (minute-of date-time) (second-of date-time)))
+
+(defun |yyyy-mm-dd hh:mm:ss| (date-time)
+  "Write string for DATE-TIME object in format: yyyy-mm-dd hh:mm:ss"
+  (format nil "~04,'0d-~02,'0d-~02,'0d ~02,'0d:~02,'0d:~02,'0d"
           (year-of date-time) (month-of date-time) (day-of date-time)
           (hour-of date-time) (minute-of date-time) (second-of date-time)))
 
