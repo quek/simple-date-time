@@ -1,3 +1,7 @@
+2016-03-26  Yoshinori Tahara  <read.eval.print@gmail.com>
+
+	* Change xxxx+ to a nondestructive function.
+
 2013-07-26  Yoshinori Tahara  <read.eval.print@gmail.com>
 
 	* Add *default-timezone* special variable.

@@ -7,26 +7,26 @@
 (defclass date-time ()
   ((year
     :initarg :year
-    :accessor year-of)
+    :reader year-of)
    (month
     :initarg :month
-    :accessor month-of)
+    :reader month-of)
    (day
     :initarg :day
-    :accessor day-of)
+    :reader day-of)
    (hour
     :initarg :hour
-    :accessor hour-of)
+    :reader hour-of)
    (minute
     :initarg :minute
-    :accessor minute-of)
+    :reader minute-of)
    (second
     :initarg :second
-    :accessor second-of)
+    :reader second-of)
    (millisecond
     :initarg :millisecond
     :initform 0
-    :accessor millisecond-of)))
+    :reader millisecond-of)))
 
 (defmethod initialize-instance :after ((date-time date-time) &rest args)
   (declare (ignore args))
@@ -59,6 +59,16 @@
 
 (defvar *normal-year-days-of-month* #(31 28 31 30 31 30 31 31 30 31 30 31))
 (defvar *leap-year-days-of-month* #(31 29 31 30 31 30 31 31 30 31 30 31))
+
+(defun clone (date-time)
+  (make-instance 'date-time
+                 :year (year-of date-time)
+                 :month (month-of date-time)
+                 :day (day-of date-time)
+                 :hour (hour-of date-time)
+                 :minute (minute-of date-time)
+                 :second (second-of date-time)
+                 :millisecond (millisecond-of date-time)))
 
 (defun leap-year-p (year)
   (cond ((zerop (mod year 400))
@@ -103,24 +113,24 @@ time (Jan 1 1 0:0:0)"
        (serialize-time date-time))))
 
 (defun normalize-time (date-time)
-  (macrolet ((f (divisor method next)
-               `(when (or (<= ,divisor (,method date-time))
-                          (minusp (,method date-time)))
+  (macrolet ((f (divisor slot next)
+               `(when (or (<= ,divisor (slot-value date-time ',slot))
+                          (minusp (slot-value date-time ',slot)))
                   (multiple-value-bind (quotient remainder)
-                      (floor (,method date-time) ,divisor)
-                    (setf (,method date-time) remainder)
-                    (incf (,next date-time) quotient)))))
-    (f 1000 millisecond-of second-of)
-    (f 60   second-of      minute-of)
-    (f 60   minute-of      hour-of)
-    (f 24   hour-of        day-of))
+                      (floor (slot-value date-time ',slot) ,divisor)
+                    (setf (slot-value date-time ',slot) remainder)
+                    (incf (slot-value date-time ',next) quotient)))))
+    (f 1000 millisecond second)
+    (f 60   second      minute)
+    (f 60   minute      hour)
+    (f 24   hour        day))
   date-time)
 
 
 (defun normalize-date (date-time)
   "Returns a DATE-TIME object with date slots adjusted so they are all
 within normal bounds. "
-  (with-accessors ((day day-of) (month month-of) (year year-of)) date-time
+  (with-slots (day month year) date-time
     (loop
       if (< month 1)
         do (progn (setf month 12)
@@ -184,9 +194,28 @@ from beginning of date-time (1 1 1 0:0:0). "
                   (date-time delta)
                 "Function adds X to DATE-TIME object slot without
 normalizing. "
-                (incf (,(intern (concatenate 'string (string x) "-OF"))
-                        date-time) delta)
-                (normalize date-time))))
+                (normalize
+                 (make-instance 'date-time
+                                :year (year-of date-time)
+                                :month (month-of date-time)
+                                :day ,(if (eq x 'day)
+                                          `(+ delta (day-of date-time))
+                                          `(day-of date-time))
+                                :day ,(if (eq x 'day)
+                                          `(+ delta (day-of date-time))
+                                          `(day-of date-time))
+                                :hour ,(if (eq x 'hour)
+                                           `(+ delta (hour-of date-time))
+                                           `(hour-of date-time))
+                                :minute ,(if (eq x 'minute)
+                                             `(+ delta (minute-of date-time))
+                                             `(minute-of date-time))
+                                :second ,(if (eq x 'second)
+                                             `(+ delta (second-of date-time))
+                                             `(second-of date-time))
+                                :millisecond ,(if (eq x 'millisecond)
+                                                  `(+ delta (millisecond-of date-time))
+                                                  `(millisecond-of date-time)))))))
   (m day)
   (m hour)
   (m minute)
@@ -196,28 +225,45 @@ normalizing. "
 (defun ensure-last-day-of-month (date-time)
   (let ((days (days-of-month (year-of date-time) (month-of date-time))))
     (when (< days (day-of date-time))
-      (setf (day-of date-time) days)))
+      (setf (slot-value date-time 'day) days)))
   date-time)
 
 (defun year+ (date-time delta)
   "Increments YEAR-OF DATE-TIME object by DELTA. Does not normalize
 the result. "
-  (incf (year-of date-time) delta)
-  (ensure-last-day-of-month date-time))
+  (ensure-last-day-of-month
+   (make-instance 'date-time
+                  :year (+ (year-of date-time) delta)
+                  :month (month-of date-time)
+                  :day (day-of date-time)
+                  :hour (hour-of date-time)
+                  :minute (minute-of date-time)
+                  :second (second-of date-time)
+                  :millisecond (millisecond-of date-time))))
+
 
 (defun month+ (date-time delta)
   "Increments MONTH-OF DATE-TIME object by DELTA. Does not normalize
 the result. "
   (multiple-value-bind (quotient remainder)
       (floor (+ (month-of date-time) delta) 12)
-    (if (zerop remainder)
-        (progn
-          (setf (month-of date-time) 12)
-          (incf (year-of date-time) (1- quotient)))
-        (progn
-          (setf (month-of date-time) remainder)
-          (incf (year-of date-time) quotient))))
-  (ensure-last-day-of-month date-time))
+    (multiple-value-bind (year month)
+        (if (zerop remainder)
+            (values  (+ (year-of date-time) (1- quotient))
+                     12)
+            (values (+ (year-of date-time) quotient)
+                    remainder))
+      (ensure-last-day-of-month
+       (make-instance 'date-time
+                      :year year
+                      :month month
+                      :day (day-of date-time)
+                      :hour (hour-of date-time)
+                      :minute (minute-of date-time)
+                      :second (second-of date-time)
+                      :millisecond (millisecond-of date-time))))))
+
+
 
 (defun date= (dt1 dt2)
   "Compare two DATE-TIME objects for date1 = date2"
@@ -421,7 +467,7 @@ current day."
   (format nil "~04,'0d/~02,'0d/~02,'0d ~02,'0d:~02,'0d"
           (year-of date-time) (month-of date-time) (day-of date-time)
           (hour-of date-time) (minute-of date-time)))
-          
+
 (defun |yyyy-mm-dd hh:mm| (date-time)
   "Write string for DATE-TIME object in format: yyyy-mm-dd hh:mm"
   (format nil "~04,'0d-~02,'0d-~02,'0d ~02,'0d:~02,'0d"
@@ -484,4 +530,3 @@ zone)."
 	    (second-of date-tz)
 	    (if (>= timezone 0) "+" "-")
 	    (if (>= timezone 0) timezone (- timezone)))))
-
